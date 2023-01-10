@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 import styles from "./FormInput.module.css";
 
 interface FormInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -8,8 +8,6 @@ interface FormInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 
 const FormInput = React.forwardRef<HTMLInputElement, FormInputProps>(
   ({ label, isValid, ...otherProps }, ref) => {
-    const inputRef = useRef<HTMLInputElement>(null);
-
     return (
       <div
         className={`${styles.control} ${
@@ -17,7 +15,7 @@ const FormInput = React.forwardRef<HTMLInputElement, FormInputProps>(
         }`}
       >
         {label && <label htmlFor={label}>{label}</label>}
-        <input {...otherProps} ref={inputRef} />
+        <input {...otherProps} ref={ref} />
       </div>
     );
   }
