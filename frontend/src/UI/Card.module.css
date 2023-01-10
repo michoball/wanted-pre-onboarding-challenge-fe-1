@@ -1,0 +1,32 @@
+.cardContainer {
+  margin: 10px 0;
+  padding: 10px 0;
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  border: 2px solid white;
+  text-align: start;
+  width: 300px;
+  border-radius: 20px;
+}
+.cardContainer .buttons {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 5px;
+}
+
+.cardContainer header {
+  padding-left: 10px;
+  font-weight: bold;
+}
+.cardContainer .content {
+  height: 40px;
+  padding: 10px;
+}
+
+.cardContainer .date {
+  text-align: end;
+  padding: 10px;
+}
