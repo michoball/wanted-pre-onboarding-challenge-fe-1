@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import TodoContext from "../context/todoContext";
-import style from "./Card.module.css";
+import style from "./TodoCard.module.css";
 
 interface CardProps {
   title: string;
