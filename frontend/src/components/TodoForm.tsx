@@ -9,18 +9,18 @@ const TodoForm = () => {
 
   const submitHandler = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setTitle("");
+    setContent("");
+
     if (todoEdit.edit && todoEdit.item) {
       const newtodo = {
         ...todoEdit.item,
         title,
         content,
       };
-      updateTodo(newtodo);
-    } else {
-      addTodo({ title, content });
+      return updateTodo(newtodo);
     }
-    setTitle("");
-    setContent("");
+    return addTodo({ title, content });
   };
 
   useEffect(() => {
