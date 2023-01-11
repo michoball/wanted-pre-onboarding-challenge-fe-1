@@ -1,10 +1,25 @@
 import React, { useState, useEffect } from "react";
 import AuthService from "../service/authService";
 
-const AuthContext = React.createContext({
+interface User {
+  email: string;
+  token: string;
+}
+
+interface AuthContextType {
+  isLoggedIn: boolean;
+  user: User | null;
+  onLogout: () => void;
+  onLogin: (email: string, password: string) => void;
+  onSignUp: (email: string, password: string) => void;
+}
+
+const AuthContext = React.createContext<AuthContextType>({
   isLoggedIn: false,
+  user: null,
   onLogout: () => {},
   onLogin: (email: string, password: string) => {},
+  onSignUp: (email: string, password: string) => {},
 });
 
 export const AuthContextProvider = ({
@@ -13,26 +28,36 @@ export const AuthContextProvider = ({
   children: React.ReactNode;
 }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const storedUserInfo = localStorage.getItem("token");
-    if (storedUserInfo) {
+    const userToken = localStorage.getItem("token");
+    const userEmail = localStorage.getItem("email");
+    if (userToken && userEmail) {
+      setCurrentUser({ email: userEmail, token: userToken });
       setIsLoggedIn(true);
     }
   }, []);
 
   const loginHandler = async (email: string, password: string) => {
-    try {
-      const { token } = await AuthService.logInService(email, password);
-      localStorage.setItem("token", token);
-      setIsLoggedIn(true);
-    } catch (error) {
-      alert(error);
-    }
+    const { token } = await AuthService.logInService(email, password);
+    localStorage.setItem("token", token);
+    localStorage.setItem("email", email);
+    setCurrentUser({ email, token });
+    setIsLoggedIn(true);
+  };
+  const signUpHandler = async (email: string, password: string) => {
+    const { token } = await AuthService.signUpService(email, password);
+    localStorage.setItem("token", token);
+    localStorage.setItem("email", email);
+    setCurrentUser({ email, token });
+    setIsLoggedIn(true);
   };
 
   const logoutHandler = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("email");
+    setCurrentUser(null);
     setIsLoggedIn(false);
   };
 
@@ -40,8 +65,10 @@ export const AuthContextProvider = ({
     <AuthContext.Provider
       value={{
         isLoggedIn: isLoggedIn,
+        user: currentUser,
         onLogout: logoutHandler,
         onLogin: loginHandler,
+        onSignUp: signUpHandler,
       }}
     >
       {children}
