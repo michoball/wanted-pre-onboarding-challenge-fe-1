@@ -23,7 +23,7 @@ interface ActionType {
   val?: string;
 }
 
-const emailReducer = (state: State, action: ActionType): State => {
+export const emailReducer = (state: State, action: ActionType): State => {
   if (action.type === "USER_INPUT") {
     if (action.val)
       return {
@@ -31,29 +31,20 @@ const emailReducer = (state: State, action: ActionType): State => {
         isValid: action.val.includes("@") && action.val.includes("."),
       };
   }
-  if (action.type === "INPUT_BLUR") {
-    return {
-      value: state.value,
-      isValid: state.value.includes("@") && state.value.includes("."),
-    };
-  }
   return { value: "", isValid: null };
 };
 
-const passwordReducer = (state: State, action: ActionType): State => {
+export const passwordReducer = (state: State, action: ActionType): State => {
   if (action.type === "USER_INPUT") {
     if (action.val)
       return { value: action.val, isValid: action.val.trim().length >= 8 };
-  }
-  if (action.type === "INPUT_BLUR") {
-    return { value: state.value, isValid: state.value.trim().length >= 8 };
   }
   return { value: "", isValid: null };
 };
 
 const Login = () => {
   const navigate = useNavigate();
-  const [formIsValid, setFormIsValid] = useState<boolean | null>(false);
+  const [formIsValid, setFormIsValid] = useState<boolean>(false);
   const { onLogin } = useContext(AuthContext);
   const [emailState, dispatchEmail] = useReducer(emailReducer, {
     value: "",
@@ -73,7 +64,7 @@ const Login = () => {
 
   useEffect(() => {
     const identifier = setTimeout(() => {
-      setFormIsValid(emailIsValid && passwordIsValid);
+      setFormIsValid(!!emailIsValid && !!passwordIsValid);
     }, 500);
 
     return () => {
@@ -88,10 +79,6 @@ const Login = () => {
       dispatchEmail({ type: "RESET" });
       dispatchPassword({ type: "RESET" });
       navigate("/");
-    } else if (!emailIsValid && emailInputRef.current) {
-      emailInputRef.current.focus();
-    } else if (!passwordIsValid && passwordInputRef.current) {
-      passwordInputRef.current.focus();
     }
   };
 
@@ -101,14 +88,6 @@ const Login = () => {
 
   const passwordChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
     dispatchPassword({ type: "USER_INPUT", val: event.target.value });
-  };
-
-  const validateEmailHandler = () => {
-    dispatchEmail({ type: "INPUT_BLUR" });
-  };
-
-  const validatePasswordHandler = () => {
-    dispatchPassword({ type: "INPUT_BLUR" });
   };
 
   return (
@@ -123,7 +102,6 @@ const Login = () => {
           name="email"
           isValid={emailState.isValid}
           value={emailState.value}
-          onBlur={validateEmailHandler}
           onChange={emailChangeHandler}
         />
         <FormInput
@@ -133,14 +111,10 @@ const Login = () => {
           name="password"
           isValid={passwordState.isValid}
           value={passwordState.value}
-          onBlur={validatePasswordHandler}
           onChange={passwordChangeHandler}
         />
         <div className={styles.buttons}>
-          <button
-            type="submit"
-            disabled={(formIsValid as boolean) ? false : true}
-          >
+          <button type="submit" disabled={!formIsValid}>
             Sign In
           </button>
         </div>
