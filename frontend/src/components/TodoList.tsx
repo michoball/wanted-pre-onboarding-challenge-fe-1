@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import TodoContext from "../context/todoContext";
-import Card from "../UI/Card";
+import Card from "./TodoCard";
 import Spinner from "../UI/Spinner";
 
 const TodoList = () => {
