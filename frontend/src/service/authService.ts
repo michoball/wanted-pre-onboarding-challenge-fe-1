@@ -1,14 +1,11 @@
 const logInService = async (email: string, password: string) => {
-  console.log({ email, password });
   const response = await fetch("/users/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
   });
 
-  if (response.ok) {
-    return response.json();
-  } else {
+  if (!response.ok) {
     response.json().then((data) => {
       let errorMessage = "Authentication failed!";
       if (data && data.error && data.error.message) {
@@ -17,7 +14,9 @@ const logInService = async (email: string, password: string) => {
       throw new Error(errorMessage);
     });
   }
+  return response.json();
 };
+
 const signUpService = async (email: string, password: string) => {
   const response = await fetch("/users/create", {
     method: "POST",
@@ -25,9 +24,7 @@ const signUpService = async (email: string, password: string) => {
     body: JSON.stringify({ email, password }),
   });
 
-  if (response.ok) {
-    return response.json();
-  } else {
+  if (!response.ok) {
     response.json().then((data) => {
       let errorMessage = "Authentication failed!";
       if (data && data.error && data.error.message) {
@@ -36,6 +33,7 @@ const signUpService = async (email: string, password: string) => {
       throw new Error(errorMessage);
     });
   }
+  return response.json();
 };
 
 const AuthService = {

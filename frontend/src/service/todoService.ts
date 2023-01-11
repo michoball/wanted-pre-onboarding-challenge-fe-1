@@ -1,4 +1,4 @@
-import { ITodos, Todo } from "../context/todoContext";
+import { ITodoData, Todo } from "../context/todoContext";
 
 const getAllTodoService = async (token: string) => {
   const response = await fetch(`/todos`, {
@@ -9,9 +9,7 @@ const getAllTodoService = async (token: string) => {
     },
   });
 
-  if (response.ok) {
-    return response.json();
-  } else {
+  if (!response.ok) {
     response.json().then((data) => {
       let errorMessage = "get All Todo failed!";
       if (data && data.error && data.error.message) {
@@ -20,6 +18,7 @@ const getAllTodoService = async (token: string) => {
       throw new Error(errorMessage);
     });
   }
+  return response.json();
 };
 
 const getOneTodoService = async (id: string, token: string) => {
@@ -31,9 +30,7 @@ const getOneTodoService = async (id: string, token: string) => {
     },
   });
 
-  if (response.ok) {
-    return response.json();
-  } else {
+  if (!response.ok) {
     response.json().then((data) => {
       let errorMessage = "get todo failed!";
       if (data && data.error && data.error.message) {
@@ -42,6 +39,7 @@ const getOneTodoService = async (id: string, token: string) => {
       throw new Error(errorMessage);
     });
   }
+  return response.json();
 };
 
 const createTodoService = async (todo: Todo, token: string) => {
@@ -52,9 +50,7 @@ const createTodoService = async (todo: Todo, token: string) => {
     body: JSON.stringify({ title, content }),
   });
 
-  if (response.ok) {
-    return response.json();
-  } else {
+  if (!response.ok) {
     response.json().then((data) => {
       let errorMessage = "create todo failed!";
       if (data && data.error && data.error.message) {
@@ -63,9 +59,10 @@ const createTodoService = async (todo: Todo, token: string) => {
       throw new Error(errorMessage);
     });
   }
+  return response.json();
 };
 
-const updateTodoService = async (token: string, todo: ITodos) => {
+const updateTodoService = async (token: string, todo: ITodoData) => {
   const { title, content, id } = todo;
   const response = await fetch(`/todos/${id}`, {
     method: "PUT",
@@ -76,17 +73,16 @@ const updateTodoService = async (token: string, todo: ITodos) => {
     body: JSON.stringify({ title, content }),
   });
 
-  if (response.ok) {
-    return response.json();
-  } else {
+  if (!response.ok) {
     response.json().then((data) => {
-      let errorMessage = "get todo failed!";
+      let errorMessage = "update todo failed!";
       if (data && data.error && data.error.message) {
         errorMessage = data.error.message;
       }
       throw new Error(errorMessage);
     });
   }
+  return response.json();
 };
 
 const deleteTodoService = async (id: string, token: string) => {
@@ -97,10 +93,7 @@ const deleteTodoService = async (id: string, token: string) => {
       Authorization: `${token}`,
     },
   });
-
-  if (response.ok) {
-    return response.json();
-  } else {
+  if (!response.ok) {
     response.json().then((data) => {
       let errorMessage = "delete todo failed!";
       if (data && data.error && data.error.message) {
@@ -109,7 +102,9 @@ const deleteTodoService = async (id: string, token: string) => {
       throw new Error(errorMessage);
     });
   }
+  return response.json();
 };
+
 const TodoService = {
   getAllTodoService,
   createTodoService,
