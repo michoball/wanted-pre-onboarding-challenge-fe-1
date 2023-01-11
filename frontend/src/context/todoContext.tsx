@@ -6,18 +6,19 @@ export interface Todo {
   content: string;
 }
 
-export interface ITodos extends Todo {
+export interface ITodoData extends Todo {
   id: string;
   updatedAt: string;
 }
 
 interface TodoContextType {
-  todos: ITodos[];
-  todoEdit: { item: ITodos | null; edit: boolean };
+  todos: ITodoData[];
+  todoEdit: { item: ITodoData | null; edit: boolean };
+  setUserToken: (token: string) => void;
   addTodo: (newTodo: Todo) => void;
   deleteTodo: (todoId: string) => void;
-  editTodo: (item: ITodos) => void;
-  updateTodo: (item: ITodos) => void;
+  editTodo: (item: ITodoData) => void;
+  updateTodo: (item: ITodoData) => void;
   isLoading: boolean;
 }
 
@@ -25,73 +26,69 @@ const TodoContext = createContext<TodoContextType>({
   todos: [],
   deleteTodo: (todoId: string) => {},
   addTodo: (newTodo: Todo) => {},
-  editTodo: (item: ITodos) => {},
-  updateTodo: (item: ITodos) => {},
+  editTodo: (item: ITodoData) => {},
+  updateTodo: (item: ITodoData) => {},
   todoEdit: { item: null, edit: false },
+  setUserToken: (token: string) => {},
   isLoading: true,
 });
 
 export const TodoProvider = ({ children }: { children: React.ReactNode }) => {
-  const [todos, setTodos] = useState<ITodos[]>([]);
+  const [todos, setTodos] = useState<ITodoData[]>([]);
+  const [userToken, setUserToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [todoEdit, setTodoEdit] = useState<{
-    item: ITodos | null;
+    item: ITodoData | null;
     edit: boolean;
   }>({
     item: null,
     edit: false,
   });
-  const userToken = localStorage.getItem("token");
 
-  const fetchTodoLists = useCallback(async () => {
-    if (!userToken) return alert("user is no logged in");
+  const fetchTodoListsHandler = useCallback(async (userToken: string) => {
     const res = await TodoService.getAllTodoService(userToken);
     setTodos(res.data);
     setIsLoading(false);
-  }, [userToken]);
+  }, []);
 
   useEffect(() => {
-    fetchTodoLists();
-  }, [fetchTodoLists]);
+    if (userToken) {
+      fetchTodoListsHandler(userToken);
+    }
+  }, [userToken, fetchTodoListsHandler]);
 
-  const deleteTodo = async (todoId: string) => {
+  const deleteTodoHandler = async (todoId: string) => {
+    if (!userToken) return alert("user is not logged in");
+
     if (window.confirm("Are you sure you want to delete?")) {
-      if (!userToken) return alert("user is no logged in");
-      try {
-        await TodoService.deleteTodoService(todoId, userToken);
-        setTodos(todos.filter((item) => item.id !== todoId));
-      } catch (error) {
-        alert(error);
-      }
+      await TodoService.deleteTodoService(todoId, userToken);
+      setTodos(todos.filter((item) => item.id !== todoId));
+
+      if (todoEdit.edit)
+        setTodoEdit({
+          item: null,
+          edit: false,
+        });
     }
   };
 
   const addTodoHandler = async (newTodo: Todo) => {
-    if (!userToken) return alert("user is no logged in");
-    try {
-      const res = await TodoService.createTodoService(newTodo, userToken);
-      setTodos([res.data, ...todos]);
-    } catch (error) {
-      alert(error);
-    }
+    if (!userToken) return alert("user is not logged in");
+
+    const { data } = await TodoService.createTodoService(newTodo, userToken);
+    setTodos([data, ...todos]);
   };
 
-  const updateTodo = async (upTodo: ITodos) => {
-    if (!userToken) return alert("user is no logged in");
-    try {
-      const res = await TodoService.updateTodoService(userToken, upTodo);
-      console.log(res);
-      setTodos(
-        todos.map((item) =>
-          item.id === upTodo.id ? { ...item, ...res.data } : item
-        )
-      );
-    } catch (error) {
-      alert(error);
-    }
+  const updateTodoHandler = async (upTodo: ITodoData) => {
+    if (!userToken) return alert("user is not logged in");
+
+    const { data } = await TodoService.updateTodoService(userToken, upTodo);
+    setTodos(
+      todos.map((item) => (item.id === upTodo.id ? { ...item, ...data } : item))
+    );
   };
 
-  const editTodo = (item: ITodos) => {
+  const editTodoHandler = (item: ITodoData) => {
     setTodoEdit({
       item,
       edit: true,
@@ -101,10 +98,11 @@ export const TodoProvider = ({ children }: { children: React.ReactNode }) => {
   const value = {
     todos,
     isLoading,
-    deleteTodo,
+    setUserToken,
+    deleteTodo: deleteTodoHandler,
     addTodo: addTodoHandler,
-    editTodo,
-    updateTodo,
+    editTodo: editTodoHandler,
+    updateTodo: updateTodoHandler,
     todoEdit,
   };
 
