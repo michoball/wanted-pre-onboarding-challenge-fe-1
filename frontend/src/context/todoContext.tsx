@@ -9,6 +9,7 @@ export interface Todo {
 export interface ITodoData extends Todo {
   id: string;
   updatedAt: string;
+  createdAt: string;
 }
 
 interface TodoContextType {
@@ -45,23 +46,19 @@ export const TodoProvider = ({ children }: { children: React.ReactNode }) => {
     edit: false,
   });
 
-  const fetchTodoListsHandler = useCallback(async (userToken: string) => {
-    const res = await TodoService.getAllTodoService(userToken);
-    setTodos(res.data);
+  const fetchTodoListsHandler = useCallback(async () => {
+    const { data } = await TodoService.getAllTodo();
+    setTodos(data);
     setIsLoading(false);
   }, []);
 
   useEffect(() => {
-    if (userToken) {
-      fetchTodoListsHandler(userToken);
-    }
-  }, [userToken, fetchTodoListsHandler]);
+    if (userToken) fetchTodoListsHandler();
+  }, [fetchTodoListsHandler, userToken]);
 
   const deleteTodoHandler = async (todoId: string) => {
-    if (!userToken) return alert("user is not logged in");
-
     if (window.confirm("Are you sure you want to delete?")) {
-      await TodoService.deleteTodoService(todoId, userToken);
+      await TodoService.deleteTodo(todoId);
       setTodos(todos.filter((item) => item.id !== todoId));
 
       if (todoEdit.edit)
@@ -73,16 +70,12 @@ export const TodoProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const addTodoHandler = async (newTodo: Todo) => {
-    if (!userToken) return alert("user is not logged in");
-
-    const { data } = await TodoService.createTodoService(newTodo, userToken);
-    setTodos([data, ...todos]);
+    const data = await TodoService.createTodo(newTodo);
+    setTodos([data.data, ...todos]);
   };
 
   const updateTodoHandler = async (upTodo: ITodoData) => {
-    if (!userToken) return alert("user is not logged in");
-
-    const { data } = await TodoService.updateTodoService(userToken, upTodo);
+    const { data } = await TodoService.updateTodo(upTodo);
     setTodos(
       todos.map((item) => (item.id === upTodo.id ? { ...item, ...data } : item))
     );
