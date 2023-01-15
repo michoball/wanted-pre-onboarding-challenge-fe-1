@@ -1,116 +1,41 @@
 import { ITodoData, Todo } from "../context/todoContext";
+import { api } from "../utill/apiConfig";
 
-const getAllTodoService = async (token: string) => {
-  const response = await fetch(`/todos`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `${token}`,
-    },
-  });
-
-  if (!response.ok) {
-    response.json().then((data) => {
-      let errorMessage = "get All Todo failed!";
-      if (data && data.error && data.error.message) {
-        errorMessage = data.error.message;
-      }
-      throw new Error(errorMessage);
-    });
-  }
-  return response.json();
+const getAllTodo = async () => {
+  const response = await api.get<{ data: ITodoData[] }>("/todos");
+  return response.data;
 };
 
-const getOneTodoService = async (id: string, token: string) => {
-  const response = await fetch(`/todos/${id}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `${token}`,
-    },
-  });
-
-  if (!response.ok) {
-    response.json().then((data) => {
-      let errorMessage = "get todo failed!";
-      if (data && data.error && data.error.message) {
-        errorMessage = data.error.message;
-      }
-      throw new Error(errorMessage);
-    });
-  }
-  return response.json();
+const getOneTodo = async (id: string) => {
+  const response = await api.get<{ data: ITodoData }>(`/todos/${id}`);
+  return response.data;
 };
 
-const createTodoService = async (todo: Todo, token: string) => {
-  const { title, content } = todo;
-  const response = await fetch("/todos", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `${token}` },
-    body: JSON.stringify({ title, content }),
-  });
-
-  if (!response.ok) {
-    response.json().then((data) => {
-      let errorMessage = "create todo failed!";
-      if (data && data.error && data.error.message) {
-        errorMessage = data.error.message;
-      }
-      throw new Error(errorMessage);
-    });
-  }
-  return response.json();
+const createTodo = async (todo: Todo) => {
+  const response = await api.post<{ data: ITodoData }>("/todos", todo);
+  return response.data;
 };
 
-const updateTodoService = async (token: string, todo: ITodoData) => {
+const updateTodo = async (todo: ITodoData) => {
   const { title, content, id } = todo;
-  const response = await fetch(`/todos/${id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `${token}`,
-    },
-    body: JSON.stringify({ title, content }),
+  const response = await api.put<{ data: ITodoData }>(`/todos/${id}`, {
+    title,
+    content,
   });
-
-  if (!response.ok) {
-    response.json().then((data) => {
-      let errorMessage = "update todo failed!";
-      if (data && data.error && data.error.message) {
-        errorMessage = data.error.message;
-      }
-      throw new Error(errorMessage);
-    });
-  }
-  return response.json();
+  return response.data;
 };
 
-const deleteTodoService = async (id: string, token: string) => {
-  const response = await fetch(`/todos/${id}`, {
-    method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `${token}`,
-    },
-  });
-  if (!response.ok) {
-    response.json().then((data) => {
-      let errorMessage = "delete todo failed!";
-      if (data && data.error && data.error.message) {
-        errorMessage = data.error.message;
-      }
-      throw new Error(errorMessage);
-    });
-  }
-  return response.json();
+const deleteTodo = async (id: string) => {
+  const response = await api.delete(`/todos/${id}`);
+  return response.data;
 };
 
 const TodoService = {
-  getAllTodoService,
-  createTodoService,
-  getOneTodoService,
-  updateTodoService,
-  deleteTodoService,
+  getAllTodo,
+  createTodo,
+  getOneTodo,
+  updateTodo,
+  deleteTodo,
 };
 
 export default TodoService;

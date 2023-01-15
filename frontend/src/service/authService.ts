@@ -1,39 +1,24 @@
-const logInService = async (email: string, password: string) => {
-  const response = await fetch("/users/login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-  });
+import { api } from "../utill/apiConfig";
 
-  if (!response.ok) {
-    response.json().then((data) => {
-      let errorMessage = "Authentication failed!";
-      if (data && data.error && data.error.message) {
-        errorMessage = data.error.message;
-      }
-      throw new Error(errorMessage);
-    });
-  }
-  return response.json();
+interface IUser {
+  message: string;
+  token: string;
+}
+
+const logInService = async (email: string, password: string) => {
+  const res = await api.post<IUser>(
+    "/users/login",
+    JSON.stringify({ email, password })
+  );
+  return res.data;
 };
 
 const signUpService = async (email: string, password: string) => {
-  const response = await fetch("/users/create", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-  });
-
-  if (!response.ok) {
-    response.json().then((data) => {
-      let errorMessage = "Authentication failed!";
-      if (data && data.error && data.error.message) {
-        errorMessage = data.error.message;
-      }
-      throw new Error(errorMessage);
-    });
-  }
-  return response.json();
+  const res = await api.post<IUser>(
+    "/users/create",
+    JSON.stringify({ email, password })
+  );
+  return res.data;
 };
 
 const AuthService = {
