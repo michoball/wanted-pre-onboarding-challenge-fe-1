@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import AuthService from "../service/authService";
+import { StorageControl } from "../utill/localStorage";
 
 interface User {
   email: string;
@@ -31,8 +32,8 @@ export const AuthContextProvider = ({
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const userToken = localStorage.getItem("token");
-    const userEmail = localStorage.getItem("email");
+    const userToken = StorageControl.storageGetter("token");
+    const userEmail = StorageControl.storageGetter("email");
     if (userToken && userEmail) {
       setCurrentUser({ email: userEmail, token: userToken });
       setIsLoggedIn(true);
@@ -41,22 +42,20 @@ export const AuthContextProvider = ({
 
   const loginHandler = async (email: string, password: string) => {
     const { token } = await AuthService.logInService(email, password);
-    localStorage.setItem("token", token);
-    localStorage.setItem("email", email);
+    StorageControl.storageSetter(token, email);
     setCurrentUser({ email, token });
     setIsLoggedIn(true);
   };
+
   const signUpHandler = async (email: string, password: string) => {
     const { token } = await AuthService.signUpService(email, password);
-    localStorage.setItem("token", token);
-    localStorage.setItem("email", email);
+    StorageControl.storageSetter(token, email);
     setCurrentUser({ email, token });
     setIsLoggedIn(true);
   };
 
   const logoutHandler = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("email");
+    StorageControl.storageRemover();
     setCurrentUser(null);
     setIsLoggedIn(false);
   };
