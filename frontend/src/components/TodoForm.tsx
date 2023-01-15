@@ -1,11 +1,27 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useContext, useState, useEffect, FormEvent } from "react";
 import TodoContext from "../context/todoContext";
+import TodoService from "../service/todoService";
 import style from "./TodoForm.module.css";
 
 const TodoForm = () => {
-  const [content, setContent] = useState<string>("");
-  const [title, setTitle] = useState<string>("");
-  const { addTodo, todoEdit, updateTodo } = useContext(TodoContext);
+  const [content, setContent] = useState("");
+  const [title, setTitle] = useState("");
+  const queryClient = useQueryClient();
+  const { todoEdit } = useContext(TodoContext);
+
+  const { mutate: addMutate } = useMutation({
+    mutationFn: TodoService.createTodo,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos"] });
+    },
+  });
+  const { mutate: updateMutate } = useMutation({
+    mutationFn: TodoService.updateTodo,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos"] });
+    },
+  });
 
   const submitHandler = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -18,9 +34,10 @@ const TodoForm = () => {
         title,
         content,
       };
-      return updateTodo(newtodo);
+      updateMutate(newtodo);
+      return;
     }
-    return addTodo({ title, content });
+    addMutate({ title, content });
   };
 
   useEffect(() => {
