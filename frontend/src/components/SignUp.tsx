@@ -12,15 +12,15 @@ import AuthContext from "../context/authContext";
 import FormInput from "../UI/FormInput";
 import { emailReducer, passwordReducer } from "./Login";
 import styles from "./Login.module.css";
+
 const SignUp = () => {
   const navigate = useNavigate();
-  const [formIsValid, setFormIsValid] = useState<boolean>(false);
+  const [formIsValid, setFormIsValid] = useState(false);
   const { onSignUp } = useContext(AuthContext);
   const [emailState, dispatchEmail] = useReducer(emailReducer, {
     value: "",
     isValid: null,
   });
-
   const [passwordState, dispatchPassword] = useReducer(passwordReducer, {
     value: "",
     isValid: null,
