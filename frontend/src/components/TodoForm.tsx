@@ -1,51 +1,43 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useContext, useState, useEffect, FormEvent } from "react";
 import TodoContext from "../context/todoContext";
-import TodoService from "../service/todoService";
+import useTodoMutation from "../hooks/services/mutations/useTodoMutation";
+import useGetTodoQuery from "../hooks/services/queryies/useGetTodoQuery";
+
 import style from "./TodoForm.module.css";
 
 const TodoForm = () => {
   const [content, setContent] = useState("");
   const [title, setTitle] = useState("");
-  const queryClient = useQueryClient();
   const { todoEdit } = useContext(TodoContext);
+  const { useAddTodoMutate, useUpdateTodoMutate } = useTodoMutation();
+  const { useGetOneTodoQuery } = useGetTodoQuery();
 
-  const { mutate: addMutate } = useMutation({
-    mutationFn: TodoService.createTodo,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["todos"] });
-    },
-  });
-  const { mutate: updateMutate } = useMutation({
-    mutationFn: TodoService.updateTodo,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["todos"] });
-    },
-  });
+  const { mutate: addTodoMutate } = useAddTodoMutate();
+  const { mutate: updateTodoMutate } = useUpdateTodoMutate();
+  const { data: todo } = useGetOneTodoQuery(todoEdit);
 
   const submitHandler = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setTitle("");
     setContent("");
-
-    if (todoEdit.edit && todoEdit.item) {
+    if (todo) {
       const newtodo = {
-        ...todoEdit.item,
+        ...todo.data,
         title,
         content,
       };
-      updateMutate(newtodo);
+      updateTodoMutate(newtodo);
       return;
     }
-    addMutate({ title, content });
+    addTodoMutate({ title, content });
   };
 
   useEffect(() => {
-    if (todoEdit.edit && todoEdit.item) {
-      setTitle(todoEdit.item.title);
-      setContent(todoEdit.item.content);
+    if (todo) {
+      setTitle(todo.data.title);
+      setContent(todo.data.content);
     }
-  }, [todoEdit]);
+  }, [todo]);
 
   return (
     <div className={style.todoForm}>

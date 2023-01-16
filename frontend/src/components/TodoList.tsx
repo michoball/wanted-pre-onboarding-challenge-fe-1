@@ -1,19 +1,11 @@
 import React from "react";
 import Card from "./TodoCard";
 import Spinner from "../UI/Spinner";
-import { useQuery } from "@tanstack/react-query";
-import TodoService from "../service/todoService";
+import useGetTodoQuery from "../hooks/services/queryies/useGetTodoQuery";
 
 const TodoList = () => {
-  const { data: todos, isLoading } = useQuery({
-    queryKey: ["todos"],
-    queryFn: TodoService.getAllTodo,
-    select: (data) =>
-      data.data.sort(
-        (a, b) =>
-          new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf()
-      ),
-  });
+  const { useGetAllTodoQuery } = useGetTodoQuery();
+  const { data: todos, isLoading } = useGetAllTodoQuery();
 
   if (!isLoading && (!todos || todos.length === 0)) {
     return <p>No todos Yet</p>;

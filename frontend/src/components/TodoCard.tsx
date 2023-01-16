@@ -1,8 +1,7 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import React, { useContext } from "react";
 import TodoContext from "../context/todoContext";
-import TodoService from "../service/todoService";
 import style from "./TodoCard.module.css";
+import useTodoMutation from "../hooks/services/mutations/useTodoMutation";
 
 interface CardProps {
   title: string;
@@ -14,18 +13,14 @@ interface CardProps {
 
 const Card: React.FC<CardProps> = ({ title, content, update, create, id }) => {
   const { editTodo } = useContext(TodoContext);
-  const queryClient = useQueryClient();
+  const { useDeleteTodoMutate } = useTodoMutation();
 
-  const { mutate: deleteMutate } = useMutation({
-    mutationFn: TodoService.deleteTodo,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["todos"] });
-    },
-  });
+  const { mutate: deleteMutate } = useDeleteTodoMutate();
 
   const editTodoHandler = () => {
-    editTodo({ title, content, updatedAt: update, id, createdAt: create });
+    editTodo(id);
   };
+
   const deleteTodoHandler = () => {
     if (window.confirm("Are you sure you want to delete?")) {
       deleteMutate(id);
