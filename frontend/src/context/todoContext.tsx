@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, useCallback } from "react";
-import TodoService from "../service/todoService";
+import TodoService from "../api/todoService";
 
 export interface Todo {
   title: string;
@@ -14,11 +14,11 @@ export interface ITodoData extends Todo {
 
 interface TodoContextType {
   todos: ITodoData[];
-  todoEdit: { item: ITodoData | null; edit: boolean };
+  todoEdit: string;
   setUserToken: (token: string) => void;
   addTodo: (newTodo: Todo) => void;
   deleteTodo: (todoId: string) => void;
-  editTodo: (item: ITodoData) => void;
+  editTodo: (todoId: string) => void;
   updateTodo: (item: ITodoData) => void;
   isLoading: boolean;
 }
@@ -27,9 +27,9 @@ const TodoContext = createContext<TodoContextType>({
   todos: [],
   deleteTodo: (todoId: string) => {},
   addTodo: (newTodo: Todo) => {},
-  editTodo: (item: ITodoData) => {},
+  editTodo: (id: string) => {},
   updateTodo: (item: ITodoData) => {},
-  todoEdit: { item: null, edit: false },
+  todoEdit: "",
   setUserToken: (token: string) => {},
   isLoading: true,
 });
@@ -38,13 +38,7 @@ export const TodoProvider = ({ children }: { children: React.ReactNode }) => {
   const [todos, setTodos] = useState<ITodoData[]>([]);
   const [userToken, setUserToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [todoEdit, setTodoEdit] = useState<{
-    item: ITodoData | null;
-    edit: boolean;
-  }>({
-    item: null,
-    edit: false,
-  });
+  const [todoEdit, setTodoEdit] = useState("");
 
   const fetchTodoListsHandler = useCallback(async () => {
     const { data } = await TodoService.getAllTodo();
@@ -61,11 +55,11 @@ export const TodoProvider = ({ children }: { children: React.ReactNode }) => {
       await TodoService.deleteTodo(todoId);
       setTodos(todos.filter((item) => item.id !== todoId));
 
-      if (todoEdit.edit)
-        setTodoEdit({
-          item: null,
-          edit: false,
-        });
+      // if (todoEdit.edit)
+      //   setTodoEdit({
+      //     item: null,
+      //     edit: false,
+      //   });
     }
   };
 
@@ -81,11 +75,8 @@ export const TodoProvider = ({ children }: { children: React.ReactNode }) => {
     );
   };
 
-  const editTodoHandler = (item: ITodoData) => {
-    setTodoEdit({
-      item,
-      edit: true,
-    });
+  const editTodoHandler = (id: string) => {
+    setTodoEdit(id);
   };
 
   const value = {
