@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import AuthService from "../service/authService";
 import { StorageControl } from "../utill/localStorage";
 
 interface User {
@@ -40,16 +39,12 @@ export const AuthContextProvider = ({
     }
   }, []);
 
-  const loginHandler = async (email: string, password: string) => {
-    const { token } = await AuthService.logInService(email, password);
-    StorageControl.storageSetter(token, email);
+  const loginHandler = async (token: string, email: string) => {
     setCurrentUser({ email, token });
     setIsLoggedIn(true);
   };
 
-  const signUpHandler = async (email: string, password: string) => {
-    const { token } = await AuthService.signUpService(email, password);
-    StorageControl.storageSetter(token, email);
+  const signUpHandler = async (token: string, email: string) => {
     setCurrentUser({ email, token });
     setIsLoggedIn(true);
   };
