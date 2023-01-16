@@ -1,22 +1,18 @@
 import React, {
   ChangeEvent,
   FormEvent,
-  useContext,
   useEffect,
   useReducer,
-  useRef,
   useState,
 } from "react";
-import { useNavigate } from "react-router-dom";
-import AuthContext from "../context/authContext";
 import FormInput from "../UI/FormInput";
 import { emailReducer, passwordReducer } from "./Login";
 import styles from "./Login.module.css";
+import useAuthMutation from "../hooks/services/mutations/useAuthMutation";
 
 const SignUp = () => {
-  const navigate = useNavigate();
   const [formIsValid, setFormIsValid] = useState(false);
-  const { onSignUp } = useContext(AuthContext);
+
   const [emailState, dispatchEmail] = useReducer(emailReducer, {
     value: "",
     isValid: null,
@@ -28,20 +24,18 @@ const SignUp = () => {
   const [confirmPasswordIsValid, setConfirmPasswordIsValid] = useState<
     boolean | null
   >(null);
+  const { useSignUpMutate } = useAuthMutation();
+  const { mutate: signinMutate } = useSignUpMutate(emailState.value);
 
   const { isValid: emailIsValid } = emailState;
   const { isValid: passwordIsValid } = passwordState;
-
-  const emailInputRef = useRef<HTMLInputElement>(null);
-  const passwordInputRef = useRef<HTMLInputElement>(null);
-  const confirmPasswordInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const identifier = setTimeout(() => {
       setFormIsValid(
         !!emailIsValid && !!passwordIsValid && !!confirmPasswordIsValid
       );
-    }, 500);
+    }, 300);
 
     return () => {
       clearTimeout(identifier);
@@ -51,12 +45,13 @@ const SignUp = () => {
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (formIsValid) {
-      onSignUp(emailState.value, passwordState.value);
-      dispatchEmail({ type: "RESET" });
-      dispatchPassword({ type: "RESET" });
-      navigate("/");
-      return;
+      signinMutate({
+        email: emailState.value,
+        password: passwordState.value,
+      });
     }
+    dispatchEmail({ type: "RESET" });
+    dispatchPassword({ type: "RESET" });
   };
 
   const emailChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
@@ -74,7 +69,6 @@ const SignUp = () => {
       <form onSubmit={handleSubmit}>
         <FormInput
           label="email"
-          ref={emailInputRef}
           type="email"
           name="email"
           isValid={emailState.isValid}
@@ -83,7 +77,6 @@ const SignUp = () => {
         />
         <FormInput
           label="password"
-          ref={passwordInputRef}
           type="password"
           name="password"
           isValid={passwordState.isValid}
@@ -92,7 +85,6 @@ const SignUp = () => {
         />
         <FormInput
           label="confirm password"
-          ref={confirmPasswordInputRef}
           type="password"
           name="confirm password"
           isValid={confirmPasswordIsValid}
