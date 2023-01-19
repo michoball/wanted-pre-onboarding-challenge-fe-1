@@ -1,15 +1,13 @@
 # :: 원티드 프리온보딩 챌린지 프론트엔드 코스 과제 
----
 
 <p>
-
 <img alt="Typescript" src="https://img.shields.io/badge/Typescript-v4.9.4-3178C6?style=plastic&logoColor=white%22/%3E"/>
 <img alt="React" src="https://img.shields.io/badge/React-v18.2.0-61DAFB?style=plastic&logo=react&logoColor=white"/>
 <img alt="React-Query" src="https://img.shields.io/badge/React Query-v4.22.0-FF4154?style=plastic&logo=reactquery&logoColor=white"/>
 <img alt="Axios" src="https://img.shields.io/badge/Axios-v1.2.2-5A29E4?style=plastic&logo=axios&logoColor=white"/>
 </p>
 
->  원티드에서 진행한 프리온보딩 챌린지 사전과제 
+원티드에서 진행한 프리온보딩 챌린지 사전과제 
 
 원티드에서 제공한 가상 Auth & Todo API를 이용하여 간단한 Todo APP 을 구현하였다. 
 
