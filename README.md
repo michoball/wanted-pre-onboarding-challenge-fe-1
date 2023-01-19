@@ -1,4 +1,9 @@
 # :: 원티드 프리온보딩 챌린지 프론트엔드 코스 과제 
+---
+
+
+<img src="https://img.shields.io/badge/React-61DAFB?style=plastic&&logo=React&logoColor=white"/>
+
 >  원티드에서 진행한 프리온보딩 챌린지 사전과제 
 
 원티드에서 제공한 가상 Auth & Todo API를 이용하여 간단한 Todo APP 을 구현하였다. 
