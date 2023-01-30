@@ -25,19 +25,18 @@ interface Store<S = any, A extends Action = AnyAction> {
   getState(): S;
 }
 
-class Store {}
-
 export function createStore<S, A extends Action = AnyAction>(
   reducer: Reducer<S, A>,
   initialState: S
 ): Store<S, A> {
   let state = initialState;
-  let callbacks: Array<A>[] = [];
+  let callbacks: Array<any> = [];
 
   const getState = () => state;
 
   const dispatch = (action: any) => {
     state = reducer(state, action);
+    callbacks.forEach((callback) => callback());
     return action;
   };
 
@@ -45,6 +44,8 @@ export function createStore<S, A extends Action = AnyAction>(
     callbacks.push(listener);
     return () => callbacks.filter((cb) => cb !== listener);
   };
+
+  dispatch({});
 
   return { getState, dispatch, subscribe };
 }
